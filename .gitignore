@@ -1,7 +1,3 @@
 Debug/
 x64/
-.vcxproj
-VCOM opencv.vcxproj.user
-VCOM opencv.vcxproj.filters
-VCOM opencv.vcxproj
 images/
