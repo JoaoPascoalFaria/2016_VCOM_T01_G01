@@ -4,3 +4,6 @@ images/
 VCOM opencv.vcxproj.user
 VCOM opencv.vcxproj.filters
 VCOM opencv.vcxproj
+VCOM opencv.opensdf
+VCOM opencv.sdf
+VCOM opencv.sln

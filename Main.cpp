@@ -23,6 +23,8 @@ Mat loadImage(String context){
 		if(img_name=="0") _exit;
 		img = imread(img_name);
 	}
+
+	return img;
 }
 
 int main(){
