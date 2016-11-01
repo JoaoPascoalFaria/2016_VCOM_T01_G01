@@ -65,5 +65,7 @@ int main(){
 	namedWindow( "roi", WINDOW_AUTOSIZE );
 	imshow( "roi", ioi);
 
+	//TEST
+
 	return 0;
 }
