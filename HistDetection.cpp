@@ -68,31 +68,17 @@ int main( int argc, char** argv )
 		calcHist( &roiImg, 1, channels, Mat(), hist_roi, 1, histSize, ranges, true, false );
 		normalize( hist_roi, hist_roi, 0, 1, NORM_MINMAX, -1, Mat() );
 
-		double base_base = compareHist( hist_roi, hist_roi, 1 );
-		double base_spot = compareHist( hist_roi, hist_roiImage, 1 );
+		double hist_comp = compareHist( hist_roi, hist_roiImage, 1 );
 
-		if(base_spot > 7) {
-
-			printf( " [%d],  %f \n", n, base_spot );
-
-			putText(img,to_string(n), Point(CCX[n],CCY[n]), FONT_HERSHEY_COMPLEX_SMALL, 0.5, Scalar(0,0,255),0.3, 8);
-			line(img, Point(CCX[n],CCY[n]), Point(CCX[n]+car_width,CCY[n]), Scalar(0,0,255));
-			line(img, Point(CCX[n],CCY[n]), Point(CCX[n],CCY[n]+car_len), Scalar(0,0,255));
-			line(img, Point(CCX[n]+car_width,CCY[n]), Point(CCX[n]+car_width,CCY[n]+car_len), Scalar(0,0,255));
-			line(img, Point(CCX[n],CCY[n]+car_len), Point(CCX[n]+car_width,CCY[n]+car_len), Scalar(0,0,255));
+		if(hist_comp > 7) {
+			printf( " [%d],  %f \n", n, hist_comp );
+			rectangle(img, Point(CCX[n],CCY[n]), Point(CCX[n]+car_width,CCY[n]+car_len), Scalar(0,0,255),0.3, 8);
 
 			busy++;
 
 		} else {
-
-			printf( " [%d],  %f \n", n, base_spot );
-
-			putText(img,to_string(n), Point(CCX[n],CCY[n]), FONT_HERSHEY_COMPLEX_SMALL, 0.5, Scalar(0,255,0),0.3, 8);
-			line(img, Point(CCX[n],CCY[n]), Point(CCX[n]+car_width,CCY[n]), Scalar(0,255,0));
-			line(img, Point(CCX[n],CCY[n]), Point(CCX[n],CCY[n]+car_len), Scalar(0,255,0));
-			line(img, Point(CCX[n]+car_width,CCY[n]), Point(CCX[n]+car_width,CCY[n]+car_len), Scalar(0,255,0));
-			line(img, Point(CCX[n],CCY[n]+car_len), Point(CCX[n]+car_width,CCY[n]+car_len), Scalar(0,255,0));
-
+			printf( " [%d],  %f \n", n, hist_comp );
+			rectangle(img, Point(CCX[n],CCY[n]), Point(CCX[n]+car_width,CCY[n]+car_len), Scalar(0,255,0),0.3, 8);
 		}
 
 	}
