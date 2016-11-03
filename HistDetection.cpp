@@ -58,7 +58,7 @@ void CallBackFunc(int event, int x, int y, int flags, void* userdata)
 				y -= car_len/2;
 				ccx.push_back(x);
 				ccy.push_back(y);
-				cout << "Added parking spot at" << "(" << x << ", " << y << ")" << endl;
+				cout << "Added parking spot at " << "(" << x << ", " << y << ")" << endl;
 				rectangle( img, Point(x,y), Point(x+car_width,y+car_len), Scalar(255,255,0),0.3, 8);
 				imshow("Parking System", img);
 			}
@@ -69,7 +69,7 @@ void CallBackFunc(int event, int x, int y, int flags, void* userdata)
 		{
 			if (STATE == 1) {
 
-				cout << "Processing" << endl;
+				cout << "Processing..." << endl;
 				initial_img.copyTo(img);
 				getNumberOfFreeSpots(img);
 				imshow("Parking System", img);
@@ -106,7 +106,13 @@ void on_trackbar( int val, void* )
 
 int main( int argc, char** argv ) {
 
-	initial_img = cv::imread(argv[1], 1);
+	string imgurl;
+
+	cout << "Select an image: ";
+	cin >> imgurl;
+	cout << endl;
+
+	initial_img = cv::imread(imgurl, 1);
 
 	initial_img.copyTo(img);
 
@@ -128,6 +134,8 @@ int main( int argc, char** argv ) {
 }
 
 int getNumberOfFreeSpots(Mat &img) {
+
+	//GaussianBlur( img, img, Size(3,3),0,0);
 
 	Mat roiImg, roiImage;
 
@@ -172,7 +180,7 @@ int getNumberOfFreeSpots(Mat &img) {
 		double hist_comp = compareHist(hist_roi, hist_baseRoi, CV_COMP_CHISQR);
 
 		//determine wether the parking spot is occupied or not based on the return value from compareHist
-		if(hist_comp > 7) {
+		if(hist_comp > 10) {
 			printf(" [%d],  %f \n", n, hist_comp);
 			rectangle(img, Point(ccx.at(n),ccy.at(n)), Point(ccx.at(n)+car_width,ccy.at(n)+car_len), Scalar(0,0,255),0.3, 8);
 			putText(img,to_string(n), Point(ccx.at(n),ccy.at(n)-5), FONT_HERSHEY_COMPLEX_SMALL, 0.5, Scalar(0,0,255),0.3, 8);
