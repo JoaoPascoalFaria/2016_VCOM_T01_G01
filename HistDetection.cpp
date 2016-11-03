@@ -180,8 +180,7 @@ int getNumberOfFreeSpots(Mat &img) {
 		double hist_comp = compareHist(hist_roi, hist_baseRoi, CV_COMP_CHISQR);
 
 		//determine wether the parking spot is occupied or not based on the return value from compareHist
-		if(hist_comp > 10) {
-			printf(" [%d],  %f \n", n, hist_comp);
+			printf(" [%d],  %f \\n", n, hist_comp);
 			rectangle(img, Point(ccx.at(n),ccy.at(n)), Point(ccx.at(n)+car_width,ccy.at(n)+car_len), Scalar(0,0,255),0.3, 8);
 			putText(img,to_string(n), Point(ccx.at(n),ccy.at(n)-5), FONT_HERSHEY_COMPLEX_SMALL, 0.5, Scalar(0,0,255),0.3, 8);
 			busy++;
