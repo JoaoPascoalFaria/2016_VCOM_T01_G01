@@ -57,6 +57,7 @@ void CallBackFunc(int event, int x, int y, int flags, void* userdata)
 
 				} 
 			} else if (STATE == 0) {
+
 				x -= car_width/2;
 				y -= car_len/2;
 				base_spot_x = x;
