@@ -17,6 +17,8 @@ using namespace std;
 #define ARRAY_SIZE(array) (sizeof((array))/sizeof((array[0])))
 
 int getNumberOfFreeSpots(Mat &img);
+void startSecondPhase();
+Mat getTopView(Mat src);
 
 int base_spot_x = 37;
 int base_spot_y = 88;
@@ -32,13 +34,29 @@ const int number_of_parking_slots = 5;
 
 int n;
 
-int STATE = 0;
+int STATE = -1;
+
+vector<Point2f> the_roi(4);
+int c = 0;
 
 void CallBackFunc(int event, int x, int y, int flags, void* userdata)
 {
 		if  ( event == EVENT_LBUTTONDOWN )
 		{
-			if (STATE == 0) {
+			if (STATE == -1) {
+				if(c<4) {
+					the_roi[c++] = Point2f(x,y);
+					cout << "Point added!" << endl;
+
+					if (c >= 4) {
+						initial_img = getTopView(initial_img);
+						cout << "Region of interest sucessfully selected." << endl;
+						STATE = 0;
+						startSecondPhase();
+					}
+
+				} 
+			} else if (STATE == 0) {
 				x -= car_width/2;
 				y -= car_len/2;
 				base_spot_x = x;
@@ -96,6 +114,23 @@ void CallBackFunc(int event, int x, int y, int flags, void* userdata)
 		}/**/
 }
 
+Mat getTopView(Mat src) {
+	vector<Point2f> output(4);
+
+	output[0] = Point2f(0,0);
+	output[1] = Point2f(0,src.rows);
+	output[2] = Point2f(src.cols,src.rows);
+	output[3] = Point2f(src.cols,0);
+
+    Mat M( 2, 4, CV_32FC1 );
+	M = Mat::zeros( src.cols, src.rows, src.type());
+	M = getPerspectiveTransform(the_roi,output);/**/
+	//Mat M = findHomography(vertices,input,0 );
+	Mat dst; warpPerspective(src, dst, M, src.size());
+	imshow("Parking System", dst);
+	return dst;
+}
+
 int slider = 17;
 const int slider_max = 40;
 void on_trackbar( int val, void* )
@@ -104,19 +139,10 @@ void on_trackbar( int val, void* )
  car_len = (int)(val *1.59);
 }
 
-int main( int argc, char** argv ) {
-
-	string imgurl;
-
-	cout << "Select an image: ";
-	cin >> imgurl;
-	cout << endl;
-
-	initial_img = cv::imread(imgurl, 1);
-
+void startSecondPhase() {
 	initial_img.copyTo(img);
 
-	cout << "Select the base empty parking spot with MOUSE1." << endl;
+	cout << "Select a base pavement spot with MOUSE1." << endl;
 
 	namedWindow("Parking System");
 
@@ -125,8 +151,36 @@ int main( int argc, char** argv ) {
 
 
 	imshow("Parking System", img);
+}
+
+int main( int argc, char** argv ) {
+	namedWindow("Parking System");
+
 	setMouseCallback("Parking System", CallBackFunc, NULL);
 
+	string imgurl;
+
+	cout << "Select an image: ";
+	cin >> imgurl;
+	cout << endl;
+
+	initial_img = cv::imread(imgurl, 1);
+	imshow("Parking System", initial_img);
+	waitKey(100);
+
+	string answer;
+	cout << "Do you want to select a region of interest of the image ( perspective will be warped if the region isn't rectangular )  [y/n]?";
+	cin >> answer;
+	cout << endl;
+
+	if (answer == "y") {
+		imshow("Parking System", initial_img);
+		cout << "Please select the 4 points of the region of interest with MOUSE1 (COUNTER CLOCK WISE)." << endl;
+		
+	} else {
+		STATE = 0;
+		startSecondPhase();
+	}
 	
 	waitKey(0);
 
@@ -134,8 +188,6 @@ int main( int argc, char** argv ) {
 }
 
 int getNumberOfFreeSpots(Mat &img) {
-
-	
 
 	Mat roiImg, roiImage;
 
@@ -181,7 +233,7 @@ int getNumberOfFreeSpots(Mat &img) {
 
 		//determine wether the parking spot is occupied or not based on the return value from compareHist
 		if(hist_comp > 7) {
-			printf(" [%d],  %f \\n", n, hist_comp);
+			printf(" [%d],  %f \n", n, hist_comp);
 			rectangle(img, Point(ccx.at(n),ccy.at(n)), Point(ccx.at(n)+car_width,ccy.at(n)+car_len), Scalar(0,0,255),0.3, 8);
 			putText(img,to_string(n), Point(ccx.at(n),ccy.at(n)-5), FONT_HERSHEY_COMPLEX_SMALL, 0.5, Scalar(0,0,255),0.3, 8);
 			busy++;
