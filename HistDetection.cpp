@@ -244,7 +244,7 @@ int getNumberOfFreeSpots(Mat &img) {
 		double hist_comp = compareHist(hist_roi, hist_baseRoi, CV_COMP_CHISQR);
 
 		
-		// metodo extra
+		/
         Mat set_image_g, roiImage_t, set_image;
 		img.copyTo(set_image_g);
 		img.copyTo(roiImage_t);
@@ -265,7 +265,7 @@ int getNumberOfFreeSpots(Mat &img) {
         inRange( set_image_hsv, min_s, max_s, s);
  
 		bool certain = false;
-        // > than 15% of image has vivid color
+        // check if ROI has vivid colors
         if(100.0-howBlack(s) > 15) {
            certain = true;
         }
@@ -277,16 +277,13 @@ int getNumberOfFreeSpots(Mat &img) {
 			continue;
 		}
 
-		//determine wether the parking spot is occupied or not based on the return value from compareHist
-		if(hist_comp > 7 && val > 10 || certain || val > 35) {
+		if (hist_comp > 7 && val > 10 || certain || val > 35) {
 			printf(" [%d],  %f \n", n, hist_comp);
 			rectangle(img, Point(ccx.at(n),ccy.at(n)), Point(ccx.at(n)+car_width,ccy.at(n)+car_len), Scalar(0,0,255),0.3, 8);
-			//putText(img,to_string(n), Point(ccx.at(n),ccy.at(n)-5), FONT_HERSHEY_COMPLEX_SMALL, 0.5, Scalar(0,0,255),0.3, 8);
 			busy++;
 		} else {
 			printf(" [%d],  %f \n", n, hist_comp );
 			rectangle(img, Point(ccx.at(n),ccy.at(n)), Point(ccx.at(n)+car_width,ccy.at(n)+car_len), Scalar(0,255,0),0.3, 8);
-			//putText(img,to_string(n), Point(ccx.at(n),ccy.at(n)-5), FONT_HERSHEY_COMPLEX_SMALL, 0.5, Scalar(0,255,0),0.3, 8);
 		}
 
 
