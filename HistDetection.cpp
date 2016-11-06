@@ -30,7 +30,6 @@ vector<int> ccy;
 
 int car_width = 17;
 int car_len = 27;
-const int number_of_parking_slots = 5;
 
 int n;
 
@@ -170,7 +169,7 @@ int main( int argc, char** argv ) {
 	waitKey(100);
 
 	string answer;
-	cout << "Do you want to select a region of interest of the image ( perspective will be warped if the region isn't rectangular )  [y/n]?";
+	cout << "Do you want to select a region of interest of the image ( perspective will be warped if the region isn't rectangular )  [y/n]? ";
 	cin >> answer;
 	cout << endl;
 
@@ -186,6 +185,18 @@ int main( int argc, char** argv ) {
 	waitKey(0);
 
 	return 0;
+}
+
+float howBlack(Mat image) {
+ 
+    unsigned blacks=0, c=0;
+    MatIterator_<uchar> it, end;
+    for( it = image.begin<uchar>(), end = image.end<uchar>(); it != end; ++it) {
+        if(*it != 255) blacks++;
+            c++;
+    }
+   
+    return blacks*100.0/c;
 }
 
 int getNumberOfFreeSpots(Mat &img) {
@@ -232,23 +243,58 @@ int getNumberOfFreeSpots(Mat &img) {
 		//compare histograms of base roi and current roi using Chi-Square
 		double hist_comp = compareHist(hist_roi, hist_baseRoi, CV_COMP_CHISQR);
 
+		
+		// metodo extra
+        Mat set_image_g, roiImage_t, set_image;
+		img.copyTo(set_image_g);
+		img.copyTo(roiImage_t);
+		img.copyTo(set_image);
+        GaussianBlur( set_image, set_image, Size(3,3),0,0);
+        cvtColor( set_image, set_image_g, COLOR_BGR2GRAY);
+        adaptiveThreshold( set_image_g, roiImage_t, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY, 11, 5);
+        Mat open = getStructuringElement(MORPH_CROSS, Size(3, 3), Point(1, 1));
+        Mat close = getStructuringElement(MORPH_CROSS, Size(3,2), Point(1, 0));
+        morphologyEx(roiImage_t, roiImage_t, MORPH_OPEN, open);
+        morphologyEx(roiImage_t, roiImage_t, MORPH_CLOSE, close);
+        Mat set_image_hsv, s;
+       
+        //this second value defines how sensitive it is to color. 127,5 should be enough
+        Scalar min_s(0, 255/3, 255/10);
+        Scalar max_s(179, 255, 255);
+        cvtColor( set_image(roi), set_image_hsv, CV_BGR2HSV);
+        inRange( set_image_hsv, min_s, max_s, s);
+ 
+		bool certain = false;
+        // > than 15% of image has vivid color
+        if(100.0-howBlack(s) > 15) {
+           certain = true;
+        }
+       
+        int val = howBlack(roiImage_t(roi));
+		if (val < 10) {
+			printf(" [%d],  %f \n", n, hist_comp );
+			rectangle(img, Point(ccx.at(n),ccy.at(n)), Point(ccx.at(n)+car_width,ccy.at(n)+car_len), Scalar(0,255,0),0.3, 8);
+			continue;
+		}
+
 		//determine wether the parking spot is occupied or not based on the return value from compareHist
-		if(hist_comp > 7) {
+		if(hist_comp > 7 && val > 10 || certain || val > 35) {
 			printf(" [%d],  %f \n", n, hist_comp);
 			rectangle(img, Point(ccx.at(n),ccy.at(n)), Point(ccx.at(n)+car_width,ccy.at(n)+car_len), Scalar(0,0,255),0.3, 8);
-			putText(img,to_string(n), Point(ccx.at(n),ccy.at(n)-5), FONT_HERSHEY_COMPLEX_SMALL, 0.5, Scalar(0,0,255),0.3, 8);
+			//putText(img,to_string(n), Point(ccx.at(n),ccy.at(n)-5), FONT_HERSHEY_COMPLEX_SMALL, 0.5, Scalar(0,0,255),0.3, 8);
 			busy++;
 		} else {
 			printf(" [%d],  %f \n", n, hist_comp );
 			rectangle(img, Point(ccx.at(n),ccy.at(n)), Point(ccx.at(n)+car_width,ccy.at(n)+car_len), Scalar(0,255,0),0.3, 8);
-			putText(img,to_string(n), Point(ccx.at(n),ccy.at(n)-5), FONT_HERSHEY_COMPLEX_SMALL, 0.5, Scalar(0,255,0),0.3, 8);
+			//putText(img,to_string(n), Point(ccx.at(n),ccy.at(n)-5), FONT_HERSHEY_COMPLEX_SMALL, 0.5, Scalar(0,255,0),0.3, 8);
 		}
+
 
 	}
 
-	int free_slots = number_of_parking_slots - busy;
+	int free_slots = ccx.size() - busy;
 
-	cout << endl << free_slots << " out of " << busy << " parking slots are free." << endl;
+	cout << endl << free_slots << " out of " << ccx.size() << " parking slots are free." << endl;
 
 	return free_slots;
 }
