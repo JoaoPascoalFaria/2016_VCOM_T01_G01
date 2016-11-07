@@ -269,6 +269,13 @@ int getNumberOfFreeSpots(Mat &img) {
         if(100.0-howBlack(s) > 15) {
            certain = true;
         }
+
+		if (certain) {
+			printf(" [%d],  %f \n", n, hist_comp);
+			rectangle(img, Point(ccx.at(n),ccy.at(n)), Point(ccx.at(n)+car_width,ccy.at(n)+car_len), Scalar(0,0,255),0.3, 8);
+			busy++;
+			continue;
+		}
        
         int val = howBlack(roiImage_t(roi));
 		if (val < 10) {
@@ -277,7 +284,7 @@ int getNumberOfFreeSpots(Mat &img) {
 			continue;
 		}
 
-		if (hist_comp > 7 && val > 10 || certain || val > 35) {
+		if (hist_comp > 7 || val > 35) {
 			printf(" [%d],  %f \n", n, hist_comp);
 			rectangle(img, Point(ccx.at(n),ccy.at(n)), Point(ccx.at(n)+car_width,ccy.at(n)+car_len), Scalar(0,0,255),0.3, 8);
 			busy++;
