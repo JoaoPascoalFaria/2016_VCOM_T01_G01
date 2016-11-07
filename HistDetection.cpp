@@ -244,7 +244,7 @@ int getNumberOfFreeSpots(Mat &img) {
 		double hist_comp = compareHist(hist_roi, hist_baseRoi, CV_COMP_CHISQR);
 
 		
-		/
+		
         Mat set_image_g, roiImage_t, set_image;
 		img.copyTo(set_image_g);
 		img.copyTo(roiImage_t);
