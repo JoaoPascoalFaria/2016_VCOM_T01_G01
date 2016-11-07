@@ -9,3 +9,5 @@ VCOM opencv.sdf
 VCOM opencv.sln
 VCOM opencv.v11.suo
 *.vcxproj
+*.suo
+VCOM opencv.vcxproj

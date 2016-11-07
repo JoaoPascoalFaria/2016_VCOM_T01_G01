@@ -284,7 +284,7 @@ int getNumberOfFreeSpots(Mat &img) {
 			continue;
 		}
 
-		if (hist_comp > 7 || val > 35) {
+		if (hist_comp > 7 || val > 30) {
 			printf(" [%d],  %f \n", n, hist_comp);
 			rectangle(img, Point(ccx.at(n),ccy.at(n)), Point(ccx.at(n)+car_width,ccy.at(n)+car_len), Scalar(0,0,255),0.3, 8);
 			busy++;
